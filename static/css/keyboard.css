@@ -106,3 +106,14 @@
     .kb-special .kb-space { flex: 2.6 1 0; }
     .kb-special .kb-done { flex: 1.5 1 0; }
 }
+
+/* v0.1.7 touch feedback: pointer press and brief post-click confirmation. */
+.kb-key:active,
+.kb-key.kb-pressed {
+    background: #65efb8;
+    border-color: #c0ffe1;
+    color: #082019;
+    box-shadow: inset 0 3px 8px #0b5e4480, 0 0 0 2px #65efb866;
+    transform: translateY(2px) scale(0.97);
+}
+.kb-key { transition: background-color 90ms, border-color 90ms, transform 90ms; }

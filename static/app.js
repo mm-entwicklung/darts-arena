@@ -2,7 +2,7 @@ import { model } from "./js/model.js";
 import { $, esc, player, avatar } from "./js/helpers.js";
 import { api } from "./js/api.js";
 import { toast, changeView, render } from "./js/ui.js";
-import { renderPlayers, savePlayer, removePlayer, toggleAvatarRemoval, onAvatarFileChange } from "./js/players.js";
+import { renderPlayers, savePlayer, removePlayer, toggleAvatarRemoval, onAvatarFileChange, fillTestPlayers } from "./js/players.js";
 import { renderSetup, updateMode, togglePlayer, toggleAllPlayers, selectFavorite, startGame } from "./js/setup.js";
 import { editFavorite, clearFavoriteEditor, saveFavorite, deleteFavorite } from "./js/favorites.js";
 import { renderGame, dart, fixDart } from "./js/game.js";
@@ -12,7 +12,7 @@ import { openKeyboard, closeKeyboard } from "./js/keyboard.js";
 // Keep this compatibility layer until event delegation is introduced separately.
 Object.assign(window, {
     model,
-    api, toast, changeView, render, renderPlayers, savePlayer, removePlayer, toggleAvatarRemoval, onAvatarFileChange,
+    api, toast, changeView, render, renderPlayers, savePlayer, removePlayer, toggleAvatarRemoval, onAvatarFileChange, fillTestPlayers,
     renderSetup, updateMode, togglePlayer, toggleAllPlayers, selectFavorite, startGame, renderGame, dart, fixDart,
     editFavorite, clearFavoriteEditor, saveFavorite, deleteFavorite,
     openKeyboard, closeKeyboard, $, esc, player, avatar,

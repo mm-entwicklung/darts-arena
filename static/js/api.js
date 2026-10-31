@@ -21,6 +21,13 @@ export async function api(path, data = {}) {
             model.mult = "S";
             model.correcting = null;
         }
+        model.flashHit = null;
+        if ((path === "throw" || path === "correct") && nextGame && !turnChanged) {
+            const index = path === "correct" ? data.index : nextGame.darts.length - 1;
+            if (Number.isInteger(index) && index >= 0 && index < nextGame.darts.length) {
+                model.flashHit = index;
+            }
+        }
         model.state = v;
         render();
     } catch (e) {

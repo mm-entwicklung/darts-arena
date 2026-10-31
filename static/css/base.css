@@ -422,3 +422,7 @@ label {
 @media (max-width: 440px) {
     .avatar-remove-button { width: 100%; }
 }
+
+/* Keep game start next to the rules instead of below a long player list. */
+.setup-start { margin-top: 24px; padding-top: 18px; border-top: 1px solid #26343b; }
+.setup-start .primary { min-height: 48px; min-width: 180px; }

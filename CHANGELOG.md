@@ -1,4 +1,15 @@
+- v0.1.7 Korrektur: Ringgenaues Trefferblinken (Single/Double/Triple/Bull), ausschließlich nach einem Treffer; keine Wiederholung bei UI-Klicks.
 # Änderungsprotokoll
+
+## v0.1.7 – Responsive Spielansicht
+
+- Nachbesserung: Tastendruck-Feedback für Bildschirmtastatur (150 ms) und Spielstart-Schaltfläche unter den Spielregeln statt unter der Teilnehmerliste.
+
+- Dreispaltige Spielansicht für 1920 × 1080: kompakte Spielerliste, virtuelle Dartscheibe und Eingabe/Aufnahme.
+- Spielerliste bis 32 Spieler intern scrollbar; aktiver Spieler automatisch sichtbar und mit Punktestand hervorgehoben.
+- Touchfreundliche Bedienelemente und responsive Anordnung bei schmaleren Fenstern.
+- Schematische Trefferpunkte und kurze Segment-Hervorhebung nach manueller Eingabe; keine Behauptung exakter Einschlagpositionen.
+- Spielregeln, Backend und SQLite unverändert.
 
 ## v0.1.5
 
@@ -33,3 +44,18 @@
 - Spieler und WebP-Avatare als BLOB, Favoritenlisten mit Mehrfachzuordnung sowie aktives Spiel dauerhaft gespeichert.
 - Datenbankzugriffe in `database.py` ausgelagert; atomare Transaktionen und Fremdschlüssel.
 - Keine Migration von JSON-Testdaten; bestehende `data/state.json` bleibt unangetastet.
+
+### v0.1.7 – Spielansicht / Testkomfort (Nachbesserung)
+- Navigation bei aktivem Spiel ausgeblendet; nach Spielende wieder sichtbar.
+- Virtuelle Dartscheibe nutzt den frei gewordenen Platz.
+- Zwei Testschaltflächen ergänzen vorhandene Spieler auf 16 oder 32 mit zufälligen Namen.
+
+### v0.1.7 – Spielansicht (Layoutkorrektur)
+- Spielerliste breiter und Treffererfassung schmaler; Dartscheibenkarte bleibt großzügig.
+- Spielmodus rechts oben im Dartscheibenfeld, Entwicklungshinweise entfernt.
+- Dartscheibe nutzt die verfügbare Kartenhöhe, ohne die Überschrift zu überdecken.
+- Aktuelle Aufnahme ohne redundante Spieler-/Moduszeile.
+- Rechter Bereich an Kartenhöhe ausgerichtet, mehr Platz für die Treffer-Tasten.
+- Spielername im Feld „JETZT AM ZUG“ vergrößert.
+
+- v0.1.7 Cricket layout fine-tuning: narrower player roster, more space for the dartboard, larger player names, field headings and marks; unchanged avatar and score sizes.

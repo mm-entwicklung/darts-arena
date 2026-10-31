@@ -97,6 +97,17 @@ function drawKeyboard() {
     // Prevent focus loss so selection/caret remains where the user placed it.
     el.querySelectorAll("button").forEach((b) => {
         b.addEventListener("pointerdown", (e) => e.preventDefault());
-        b.addEventListener("click", () => keyboardPress(b.dataset.key));
+        b.addEventListener("click", () => {
+            const pressedKey = b.dataset.key;
+            keyboardPress(pressedKey);
+            // Redrawing the keyboard (e.g. after Shift) replaces its buttons.
+            // Highlight the current matching button for a short, visible confirmation.
+            const current = [...(el.querySelectorAll("button") || [])]
+                .find((button) => button.dataset.key === pressedKey);
+            if (current) {
+                current.classList.add("kb-pressed");
+                window.setTimeout(() => current.classList.remove("kb-pressed"), 150);
+            }
+        });
     });
 }

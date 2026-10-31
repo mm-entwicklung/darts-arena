@@ -1,4 +1,4 @@
-import base64, binascii, io, json, re, threading, uuid, webbrowser
+import base64, binascii, io, json, random, re, threading, uuid, webbrowser
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
 from urllib.parse import urlparse
@@ -90,6 +90,24 @@ class Handler(BaseHTTPRequestHandler):
                 elif path=='/api/avatar':
                     result = optimize_avatar(body.get('image'))
                     return self.send(200, {'avatar': result})
+                elif path=='/api/test_players':
+                    target=body.get('target')
+                    if type(target) is not int or target not in (16, 32):
+                        raise ValueError('Nur 16 oder 32 Testspieler möglich')
+                    first_names = ('Alex', 'Ben', 'Chris', 'Daniel', 'Elliot', 'Finn', 'George', 'Henry',
+                                   'Jamie', 'Kai', 'Liam', 'Max', 'Noah', 'Oliver', 'Paul', 'Robin',
+                                   'Sam', 'Theo', 'Victor', 'William', 'Anna', 'Emma', 'Lena', 'Mia',
+                                   'Nina', 'Paula', 'Sophie', 'Tina', 'Laura', 'Julia', 'Marie', 'Zoe')
+                    last_names = ('Miller', 'Smith', 'Brown', 'Taylor', 'Wilson', 'Clark', 'Walker',
+                                  'Young', 'King', 'Scott', 'Green', 'Hill', 'Baker', 'Adams',
+                                  'Turner', 'Carter', 'Parker', 'Evans', 'Collins', 'Cooper')
+                    existing_names = {p['name'].casefold() for p in STATE['players']}
+                    while len(STATE['players']) < target:
+                        name = f'{random.choice(first_names)} {random.choice(last_names)}'
+                        if name.casefold() in existing_names:
+                            continue
+                        existing_names.add(name.casefold())
+                        STATE['players'].append({'id': uuid.uuid4().hex, 'name': name, 'avatar': ''})
                 elif path=='/api/favorites':
                     name = str(body.get('name', '')).strip()[:50]
                     ids = body.get('players', [])
