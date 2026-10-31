@@ -379,3 +379,46 @@ label {
     border-color: #348d73;
     font-weight: 700;
 }
+
+/* v0.1.5: named favorite lists. */
+.favorites-panel { margin-top: 22px; }
+.favorite-members { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 6px; max-height: 230px; overflow-y: auto; margin-bottom: 14px; }
+.favorite-entry { display: flex; justify-content: space-between; align-items: center; gap: 12px; border-top: 1px solid #26383a; padding: 10px 0; }
+.favorite-entry small { color: #9bb2ae; }
+
+/* Touch-friendly avatar editor: preview and action stay together. */
+.avatar-editor {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+    padding: 14px;
+    margin-bottom: 18px;
+    border: 1px solid #35464d;
+    border-radius: 10px;
+}
+.avatar-editor-preview .avatar {
+    width: 64px;
+    height: 64px;
+}
+.avatar-editor-preview.avatar-pending-removal {
+    opacity: 0.35;
+}
+.avatar-editor-info {
+    display: flex;
+    flex: 1 1 170px;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 0;
+}
+.avatar-editor-info span {
+    font-size: 12px;
+    color: #9db0b0;
+}
+.avatar-remove-button {
+    min-height: 48px;
+    min-width: 112px;
+}
+@media (max-width: 440px) {
+    .avatar-remove-button { width: 100%; }
+}

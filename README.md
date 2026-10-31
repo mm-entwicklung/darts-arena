@@ -8,12 +8,12 @@
 4. Der Browser öffnet `http://127.0.0.1:8765`.
 5. **Spieler** → mindestens zwei Profile erstellen → **Neues Spiel** → Spielmodus und Spieler wählen → **Spiel starten**.
 
-Die App nutzt ausschließlich die Python-Standardbibliothek, ohne zusätzliche Pakete oder Internetverbindung. Das Konsolenfenster muss während des Spielens geöffnet bleiben. Beenden mit Strg+C. Daten liegen in `data/state.json`; zum Sichern diese Datei kopieren.
+Für die Avatarverarbeitung benötigt die App die lokalen Python-Pakete aus `requirements.txt`. Einmalig bei bestehender Internetverbindung installieren: `python -m pip install -r requirements.txt`. Danach funktioniert die App offline. Das Konsolenfenster muss während des Spielens geöffnet bleiben. Beenden mit Strg+C. Daten liegen in `data/state.json`; zum Sichern diese Datei kopieren.
 
 ## Umfang
 
 - Bis zu 32 gespeicherte und gleichzeitig teilnehmende Spieler; Namen und Avatarbilder.
-- x01: 101/201/301/501/701/1001; Single/Double/Master Out, Bust und automatische Siegererkennung.
+- x01: 301/501/701/901/1001; Single/Double/Master Out, Bust und automatische Siegererkennung.
 - Cricket: Standard, Cut-Throat, No-Score; 15–20 und Bull, Markierungen, Punktelogik, Siegererkennung.
 - Manuelle Treffer über Single/Double/Triple, Bull und Miss; maximal drei Darts pro Aufnahme.
 - Offline, nur auf 127.0.0.1 erreichbar; lokaler Spielstand wird gespeichert.
@@ -22,8 +22,8 @@ Die App nutzt ausschließlich die Python-Standardbibliothek, ohne zusätzliche P
 
 - **Noch keine echte Autodarts-Integration oder Kameraverarbeitung.** Bestehendes Autodarts-System muss vor Anbindung identifiziert werden (Version, Schnittstelle, Kameramodell).
 - **Noch keine iOS-/Android-Apps.** Diese Version ist eine lokal auf Windows laufende Browseroberfläche. Eine spätere plattformübergreifende Oberfläche ist möglich.
-- Kein Undo, keine Legs/Sets/Turniere, keine Statistiken oder Live-Netzwerksynchronisation.
-- Die x01-Regeln enthalten keine Double-In-Option.
+- Keine Legs/Sets/Turniere, keine Statistiken oder Live-Netzwerksynchronisation.
+- x01 unterstützt Straight/Double/Master In.
 - Die Reihenfolge der Spieler entspricht der Auswahlreihenfolge.
 - Browser kann Daten nur lokal über den Python-Server speichern; keine direkte EXE.
 
@@ -61,3 +61,17 @@ Bei x01 können im Menü **Check-In (Spielbeginn)** die Optionen Straight In (St
 ## Frontend-Struktur (v0.1.3)
 
 `static/app.js` ist der ES-Modul-Einstiegspunkt. Die Module in `static/js/` trennen API, Spieler, Setup, Spielanzeige, Tastatur und UI. Styles liegen in `static/css/` (base, game, keyboard). Der Python-Server muss die statischen Unterverzeichnisse bereitstellen.
+
+## Version 0.1.5 – Favoritenlisten und Avatare
+
+In der **Spielerverwaltung** können benannte Favoritenlisten angelegt, bearbeitet und gelöscht werden. Spieler können mehreren Listen angehören. Unter **Neues Spiel** kann eine Liste geladen und die Teilnehmerauswahl anschließend beliebig angepasst werden; die gespeicherte Liste bleibt unverändert. Die Listen liegen mit den Spielern in `data/state.json`.
+
+Avatarbilder (JPEG, PNG, WebP, HEIC/HEIF) werden **lokal auf dem Python-Server** mit Pillow und pillow-heif dekodiert, mittig quadratisch zugeschnitten und als 256 × 256 WebP mit Qualität 85 gespeichert. Originalbilder werden nicht dauerhaft in Darts Arena abgelegt. Das Foto auf dem ursprünglichen Gerät wird nicht gelöscht. Maximale Originalgröße: 25 MB; maximal 100 Megapixel. Bestehende Avatare bleiben nutzbar.
+
+**Einmalige Installation unter Windows (Internet nur für die Installation):**
+
+```bat
+python -m pip install -r requirements.txt
+```
+
+Die Anwendung selbst bleibt vollständig lokal/offline. Falls HEIC-Dateien nicht verarbeitet werden, die Installation von `pillow-heif` überprüfen. Die Speicherung bleibt in v0.1.5 JSON; SQLite ist für v0.1.6 vorgesehen.

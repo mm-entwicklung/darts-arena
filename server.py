@@ -1,4 +1,4 @@
-import base64, json, os, re, threading, webbrowser
+import base64, binascii, io, json, os, re, threading, uuid, webbrowser
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
 from urllib.parse import urlparse
@@ -7,14 +7,49 @@ from engine import new_game, throw, next_turn, correct_dart
 ROOT=Path(__file__).resolve().parent
 DATA=ROOT/'data'/'state.json'
 LOCK=threading.RLock()
-def initial():return {'players':[], 'game':None}
+def initial():return {'players':[], 'game':None, 'favorites':[]}
 def load():
     try:return json.loads(DATA.read_text(encoding='utf-8'))
     except (FileNotFoundError,ValueError):return initial()
 STATE=load()
+STATE.setdefault('favorites', [])
 def save():
     DATA.parent.mkdir(exist_ok=True)
     temp=DATA.with_suffix('.tmp');temp.write_text(json.dumps(STATE,ensure_ascii=False,indent=2),encoding='utf-8');os.replace(temp,DATA)
+
+
+MAX_UPLOAD_BYTES = 25 * 1024 * 1024
+
+def optimize_avatar(data_url):
+    """Decode an uploaded image locally; persist only a small WebP data URL."""
+    from PIL import Image, ImageOps, UnidentifiedImageError
+    try:
+        import pillow_heif
+        pillow_heif.register_heif_opener()
+    except ImportError:
+        pass
+    if not isinstance(data_url, str) or not data_url.startswith('data:image/'):
+        raise ValueError('Ungültiges Avatarbild')
+    header, sep, payload = data_url.partition(',')
+    if not sep or ';base64' not in header.lower():
+        raise ValueError('Ungültiges Bildformat')
+    try:
+        binary = base64.b64decode(payload, validate=True)
+    except (binascii.Error, ValueError):
+        raise ValueError('Ungültige Bilddaten')
+    if len(binary) > MAX_UPLOAD_BYTES:
+        raise ValueError('Originalbild zu groß (maximal 25 MB)')
+    try:
+        with Image.open(io.BytesIO(binary)) as image:
+            if image.width * image.height > 100_000_000:
+                raise ValueError('Bildauflösung zu groß (maximal 100 Megapixel)')
+            image = ImageOps.exif_transpose(image)
+            image = ImageOps.fit(image.convert('RGB'), (256, 256), method=Image.Resampling.LANCZOS)
+            output = io.BytesIO()
+            image.save(output, format='WEBP', quality=85, method=4)
+    except (UnidentifiedImageError, OSError) as error:
+        raise ValueError('Bild nicht lesbar. Für HEIC bitte pillow-heif installieren.') from error
+    return 'data:image/webp;base64,' + base64.b64encode(output.getvalue()).decode('ascii')
 
 class Handler(BaseHTTPRequestHandler):
     def send(self,status,data,ctype='application/json'):
@@ -41,7 +76,7 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self):
         try:
             length=int(self.headers.get('Content-Length','0'))
-            if length>2_000_000:raise ValueError('Anfrage zu groß')
+            if length < 0 or length > 36_000_000:raise ValueError('Anfrage zu groß (maximal 25 MB Bild)')
             body=json.loads(self.rfile.read(length) or b'{}')
             with LOCK:
                 path=urlparse(self.path).path
@@ -49,19 +84,38 @@ class Handler(BaseHTTPRequestHandler):
                     name=str(body.get('name','')).strip()[:50]
                     if not name:raise ValueError('Name erforderlich')
                     avatar=body.get('avatar','')
-                    if avatar and (not isinstance(avatar,str) or len(avatar)>1_500_000 or not re.match(r'^data:image/(png|jpeg|webp);base64,',avatar)):
-                        raise ValueError('Avatar muss PNG, JPG oder WebP sein')
+                    if avatar and (not isinstance(avatar,str) or len(avatar)>300_000 or not re.match(r'^data:image/webp;base64,',avatar)):
+                        raise ValueError('Avatar muss ein optimiertes WebP-Bild sein')
                     pid=body.get('id')
                     existing=next((p for p in STATE['players'] if p['id']==pid),None)
                     if existing:existing.update(name=name,avatar=avatar)
                     else:
                         if len(STATE['players'])>=32:raise ValueError('Maximal 32 Spieler')
-                        import uuid
                         STATE['players'].append({'id':uuid.uuid4().hex,'name':name,'avatar':avatar})
+                elif path=='/api/avatar':
+                    result = optimize_avatar(body.get('image'))
+                    return self.send(200, {'avatar': result})
+                elif path=='/api/favorites':
+                    name = str(body.get('name', '')).strip()[:50]
+                    ids = body.get('players', [])
+                    if not name: raise ValueError('Listenname erforderlich')
+                    if not isinstance(ids, list): raise ValueError('Ungültige Spielerliste')
+                    known = {p['id'] for p in STATE['players']}
+                    ids = list(dict.fromkeys(i for i in ids if isinstance(i, str) and i in known))
+                    fid = body.get('id')
+                    existing = next((f for f in STATE['favorites'] if f['id'] == fid), None)
+                    if existing: existing.update(name=name, players=ids)
+                    else:
+                        if len(STATE['favorites']) >= 50: raise ValueError('Maximal 50 Favoritenlisten')
+                        STATE['favorites'].append({'id': uuid.uuid4().hex, 'name': name, 'players': ids})
+                elif path=='/api/favorites_delete':
+                    STATE['favorites'] = [f for f in STATE['favorites'] if f['id'] != body.get('id')]
                 elif path=='/api/delete':
                     pid=body.get('id')
                     if STATE['game'] and pid in STATE['game']['players']:raise ValueError('Spieler ist Teil des aktuellen Spiels')
                     STATE['players']=[p for p in STATE['players'] if p['id']!=pid]
+                    for favorite in STATE['favorites']:
+                        favorite['players'] = [i for i in favorite['players'] if i != pid]
                 elif path=='/api/start':
                     ids=body.get('players',[])
                     if any(i not in [p['id'] for p in STATE['players']] for i in ids):raise ValueError('Unbekannter Spieler')
