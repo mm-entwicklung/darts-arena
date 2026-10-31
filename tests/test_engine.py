@@ -21,6 +21,22 @@ class EngineTests(unittest.TestCase):
   g=new_game(['a','b'],mode='cricket');throw(g,'T20');throw(g,'T20');self.assertEqual(g['marks']['a']['20'],3);self.assertEqual(g['scores']['a'],60)
  def test_cutthroat(self):
   g=new_game(['a','b'],mode='cricket',cricket='cutthroat');throw(g,'T20');throw(g,'T20');self.assertEqual(g['scores']['b'],60)
+ def test_double_in_ignores_non_double_and_counts_entry(self):
+  g=new_game(['a','b'],start=501,checkin='double')
+  throw(g,'S20');throw(g,'T20');self.assertEqual(g['scores']['a'],501)
+  throw(g,'D20');self.assertEqual(g['scores']['a'],461);self.assertTrue(g['entered']['a'])
+ def test_master_in_accepts_triple_and_bull(self):
+  g=new_game(['a','b'],checkin='master')
+  throw(g,'T20');self.assertEqual(g['scores']['a'],441)
+  next_turn(g);throw(g,'D25');self.assertEqual(g['scores']['b'],451)
+ def test_double_in_bull_and_independent_players(self):
+  g=new_game(['a','b'],checkin='double')
+  throw(g,'D25');self.assertEqual(g['scores']['a'],451)
+  next_turn(g);throw(g,'S20');self.assertEqual(g['scores']['b'],501)
+ def test_straight_in_default(self):
+  g=new_game(['a','b']);throw(g,'S20');self.assertEqual(g['scores']['a'],481)
+ def test_invalid_checkin(self):
+  with self.assertRaises(ValueError):new_game(['a','b'],checkin='invalid')
  def test_max_players(self):
   self.assertEqual(len(new_game([str(i) for i in range(32)])['players']),32)
   with self.assertRaises(ValueError):new_game([str(i) for i in range(33)])

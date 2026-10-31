@@ -56,7 +56,7 @@ class Handler(BaseHTTPRequestHandler):
                 elif path=='/api/start':
                     ids=body.get('players',[])
                     if any(i not in [p['id'] for p in STATE['players']] for i in ids):raise ValueError('Unbekannter Spieler')
-                    STATE['game']=new_game(ids,body.get('mode','x01'),int(body.get('start',501)),body.get('out','double'),body.get('cricket','standard'))
+                    STATE['game']=new_game(ids,body.get('mode','x01'),int(body.get('start',501)),body.get('out','double'),body.get('cricket','standard'),body.get('checkin','straight'))
                 elif path=='/api/throw':
                     if not STATE['game']:raise ValueError('Kein aktives Spiel')
                     throw(STATE['game'],body.get('dart',''))

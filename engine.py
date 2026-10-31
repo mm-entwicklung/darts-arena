@@ -13,14 +13,16 @@ def parse_dart(value):
     if not 1<=n<=20: raise ValueError('Feld außerhalb 1–20')
     return (n,mult,n*mult,s)
 
-def new_game(player_ids, mode='x01', start=501, out='double', cricket='standard'):
+def new_game(player_ids, mode='x01', start=501, out='double', cricket='standard', checkin='straight'):
     if not 2<=len(player_ids)<=32 or len(set(player_ids))!=len(player_ids): raise ValueError('2–32 unterschiedliche Spieler erforderlich')
     if mode not in VALID_MODES: raise ValueError('Unbekannter Modus')
     if mode=='x01' and (not isinstance(start,int) or start<2 or start>10001): raise ValueError('Ungültiger Startwert')
     if out not in ('single','double','master'): raise ValueError('Ungültige Checkout-Regel')
+    if checkin not in ('straight','double','master'): raise ValueError('Ungültige Check-In-Regel')
     if cricket not in ('standard','cutthroat','noscore'): raise ValueError('Ungültige Cricket-Variante')
     return {'mode':mode,'players':list(player_ids),'turn':0,'darts':[], 'history':[], 'winner':None,
-            'start':start,'out':out,'cricket':cricket,
+            'start':start,'out':out,'checkin':checkin,'cricket':cricket,
+            'entered':{p:checkin=='straight' for p in player_ids},
             'scores':{p:start if mode=='x01' else 0 for p in player_ids},
             'marks':{p:{str(n):0 for n in CRICKET_NUMBERS} for p in player_ids},
             'turn_start':start if mode=='x01' else 0,'bust':False}
@@ -54,6 +56,12 @@ def throw(game, value):
     hit=parse_dart(value); p=game['players'][game['turn']]
     game['darts'].append(hit[3]); game['history'].append({'player':p,'dart':hit[3]})
     if game['mode']=='x01':
+        entered=game.setdefault('entered',{pid:True for pid in game['players']})
+        rule=game.get('checkin','straight')
+        if not entered[p]:
+            if hit[2]==0 or (rule=='double' and hit[1]!=2) or (rule=='master' and hit[1] not in (2,3)):
+                return game
+            entered[p]=True
         remaining=game['scores'][p]-hit[2]
         if remaining<0 or (remaining==0 and not _out_ok(hit,game['out'])) or (remaining==1 and game['out']=='double'):
             game['scores'][p]=game['turn_start'];game['bust']=True

@@ -40,3 +40,7 @@ Spielengine: `engine.py` · Lokaler HTTP-Server: `server.py` · Oberfläche: `st
 ## Autodarts-Architektur (nächster Schritt)
 
 Ein separater Hardwareadapter soll künftig validierte Treffer als `S20`, `D16`, `T19`, `S25`, `D25` oder `MISS` an die Spielengine übergeben. 1- und 3-Kamera-Betrieb gehören in diesen Adapter und dürfen die Regeln nicht beeinflussen. Es wird **keine** Kompatibilität mit einer bestimmten bestehenden Autodarts-Installation behauptet, solange ihre Schnittstelle nicht geprüft wurde.
+
+## Version 0.1.1 – Check-In-Regeln
+
+Bei x01 können im Menü **Check-In (Spielbeginn)** die Optionen Straight In (Standard), Double In und Master In gewählt werden. Double In erfordert als ersten zählenden Dart ein Doppel (inklusive Bullseye 50), Master In ein Doppel oder Triple (inklusive Bullseye 50). Nicht qualifizierende Darts zählen als geworfen, ziehen aber keine Punkte ab. Jeder Spieler hat einen separaten Einstiegsstatus. Check-Out bleibt unabhängig einstellbar.
