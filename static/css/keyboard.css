@@ -86,3 +86,23 @@
     }
 }
 
+
+/* Visible state for the virtual keyboard's toggle keys. */
+.kb-key.kb-active {
+    background: #47dca1;
+    border-color: #72f1c1;
+    color: #082019;
+    box-shadow: inset 0 0 0 2px #167653;
+}
+
+/* v0.1.4: four fixed ten-key rows; special actions remain on the last row. */
+.kb-main-row .kb-key { flex: 1 1 10%; }
+.kb-special .kb-key { flex: 1 1 0; }
+.kb-special .kb-space { flex: 2.6 1 0; }
+.kb-special .kb-done { flex: 1.5 1 0; }
+@media (max-width: 600px) {
+    .kb-special { flex-wrap: nowrap; }
+    .kb-special .kb-key { flex-basis: 0; min-width: 0; }
+    .kb-special .kb-space { flex: 2.6 1 0; }
+    .kb-special .kb-done { flex: 1.5 1 0; }
+}

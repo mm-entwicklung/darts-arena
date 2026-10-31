@@ -362,3 +362,20 @@ label {
     }
 }
 
+
+/* v0.1.4: player numbering and capacity indicator. */
+.player-number {
+    display: inline-block;
+    min-width: 2.2em;
+    color: #8fc4b6;
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+}
+.player-capacity {
+    color: #47dca1;
+    font-weight: 700;
+}
+.select-all {
+    border-color: #348d73;
+    font-weight: 700;
+}

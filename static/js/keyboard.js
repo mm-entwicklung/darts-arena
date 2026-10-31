@@ -3,12 +3,8 @@ import { $, esc } from "./helpers.js";
 // Touch keyboard: a reusable, accessible QWERTZ input layer.
 // The physical keyboard continues to work; no native Windows keyboard is required.
 let keyboardTarget = null,
-    keyboardShift = true,
-    keyboardNumbers = false;
-const keyboardRows = {
-    letters: ["qwertzuiop", "asdfghjkl", "yxcvbnm"],
-    numbers: ["1234567890", "@#€%&-+()/", ".,:;!?_ß"],
-};
+    keyboardShift = true;
+const keyboardRows = ["1234567890", "qwertzuiop", "asdfghjklä", "yxcvbnmöüß"];
 export function openKeyboard() {
     const input = $("pname");
     if (!input) return;
@@ -28,7 +24,6 @@ export function closeKeyboard() {
     const el = $("touch-keyboard");
     if (el) el.remove();
     keyboardShift = true;
-    keyboardNumbers = false;
 }
 function keyboardPress(key) {
     const input = keyboardTarget;
@@ -45,11 +40,6 @@ function keyboardPress(key) {
         drawKeyboard();
         return;
     }
-    if (key === "mode") {
-        keyboardNumbers = !keyboardNumbers;
-        drawKeyboard();
-        return;
-    }
     const start = input.selectionStart ?? input.value.length,
         end = input.selectionEnd ?? start;
     let text = key === "space" ? " " : key;
@@ -60,7 +50,7 @@ function keyboardPress(key) {
     } else {
         if (input.value.length - (end - start) + text.length > 50) return;
         input.setRangeText(text, start, end, "end");
-        if (!keyboardNumbers && keyboardShift) {
+        if (keyboardShift && /^[a-zäöüß]$/i.test(text)) {
             keyboardShift = false;
             drawKeyboard();
         }
@@ -70,18 +60,40 @@ function keyboardPress(key) {
 function drawKeyboard() {
     const el = $("touch-keyboard");
     if (!el) return;
-    const rows = keyboardNumbers ? keyboardRows.numbers : keyboardRows.letters;
     const key = (label, value, extra = "") =>
         `<button type="button" class="kb-key ${extra}" data-key="${esc(value)}" aria-label="${esc(label)}">${esc(label)}</button>`;
+
+    const letter = (character) =>
+        keyboardShift && character !== "ß" ? character.toLocaleUpperCase("de-DE") : character;
+
+    const mainRows = keyboardRows
+        .map((line, index) => {
+            const buttons = [...line]
+                .map((character) => {
+                    const value = index === 0 ? character : letter(character);
+                    return key(value, value);
+                })
+                .join("");
+            return `<div class="kb-row kb-main-row">${buttons}</div>`;
+        })
+        .join("");
+
+    const specialRow = [
+        key("⇧", "shift", `kb-action ${keyboardShift ? "kb-active" : ""}`),
+        key("-", "-"),
+        key("'", "'"),
+        key(".", "."),
+        key("_", "_"),
+        key("Leerzeichen", "space", "kb-space"),
+        key("⌫", "backspace", "kb-action"),
+        key("Fertig", "done", "kb-done"),
+    ].join("");
+
     el.innerHTML =
         `<div class="kb-header"><span>⌨ Bildschirmtastatur</span>${key("Schließen", "done", "kb-action")}</div>` +
-        rows
-            .map(
-                (line) =>
-                    `<div class="kb-row">${[...line].map((c) => key(keyboardShift && !keyboardNumbers ? c.toUpperCase() : c, keyboardShift && !keyboardNumbers ? c.toUpperCase() : c)).join("")}</div>`,
-            )
-            .join("") +
-        `<div class="kb-row kb-special">${key(keyboardNumbers ? "ABC" : "123", "mode", "kb-action")}${key("⇧", "shift", "kb-action")}${key("ä", "ä")}${key("ö", "ö")}${key("ü", "ü")}${key("ß", "ß")}${key("Leerzeichen", "space", "kb-space")}${key("⌫", "backspace", "kb-action")}${key("Fertig", "done", "kb-done")}</div>`;
+        mainRows +
+        `<div class="kb-row kb-special">${specialRow}</div>`;
+
     // Prevent focus loss so selection/caret remains where the user placed it.
     el.querySelectorAll("button").forEach((b) => {
         b.addEventListener("pointerdown", (e) => e.preventDefault());

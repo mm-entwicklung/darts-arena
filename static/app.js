@@ -3,7 +3,7 @@ import { $, esc, player, avatar } from "./js/helpers.js";
 import { api } from "./js/api.js";
 import { toast, changeView, render } from "./js/ui.js";
 import { renderPlayers, savePlayer, removePlayer } from "./js/players.js";
-import { renderSetup, updateMode, togglePlayer, startGame } from "./js/setup.js";
+import { renderSetup, updateMode, togglePlayer, toggleAllPlayers, startGame } from "./js/setup.js";
 import { renderGame, dart, fixDart } from "./js/game.js";
 import { openKeyboard, closeKeyboard } from "./js/keyboard.js";
 
@@ -12,7 +12,7 @@ import { openKeyboard, closeKeyboard } from "./js/keyboard.js";
 Object.assign(window, {
     model,
     api, toast, changeView, render, renderPlayers, savePlayer, removePlayer,
-    renderSetup, updateMode, togglePlayer, startGame, renderGame, dart, fixDart,
+    renderSetup, updateMode, togglePlayer, toggleAllPlayers, startGame, renderGame, dart, fixDart,
     openKeyboard, closeKeyboard, $, esc, player, avatar,
 });
 
