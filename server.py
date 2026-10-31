@@ -2,7 +2,7 @@ import base64, json, os, re, threading, webbrowser
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
 from urllib.parse import urlparse
-from engine import new_game, throw, next_turn
+from engine import new_game, throw, next_turn, correct_dart
 
 ROOT=Path(__file__).resolve().parent
 DATA=ROOT/'data'/'state.json'
@@ -60,6 +60,9 @@ class Handler(BaseHTTPRequestHandler):
                 elif path=='/api/throw':
                     if not STATE['game']:raise ValueError('Kein aktives Spiel')
                     throw(STATE['game'],body.get('dart',''))
+                elif path=='/api/correct':
+                    if not STATE['game']:raise ValueError('Kein aktives Spiel')
+                    correct_dart(STATE['game'],body.get('index'),body.get('dart',''))
                 elif path=='/api/next':
                     if not STATE['game']:raise ValueError('Kein aktives Spiel')
                     next_turn(STATE['game'])

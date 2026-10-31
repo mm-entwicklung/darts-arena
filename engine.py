@@ -25,7 +25,7 @@ def new_game(player_ids, mode='x01', start=501, out='double', cricket='standard'
             'entered':{p:checkin=='straight' for p in player_ids},
             'scores':{p:start if mode=='x01' else 0 for p in player_ids},
             'marks':{p:{str(n):0 for n in CRICKET_NUMBERS} for p in player_ids},
-            'turn_start':start if mode=='x01' else 0,'bust':False}
+            'turn_start':start if mode=='x01' else 0,'bust':False,'visit_snapshot':None}
 
 def _out_ok(hit, out):
     return out=='single' or (out=='double' and hit[1]==2) or (out=='master' and hit[1]>=2)
@@ -54,6 +54,10 @@ def throw(game, value):
     if game['winner'] is not None: raise ValueError('Spiel ist beendet')
     if len(game['darts'])>=3 or game['bust']: raise ValueError('Aufnahme beendet; bitte weiter schalten')
     hit=parse_dart(value); p=game['players'][game['turn']]
+    if not game['darts']:
+        import copy
+        game['visit_snapshot']={'scores':copy.deepcopy(game['scores']), 'marks':copy.deepcopy(game['marks']),
+                                'entered':copy.deepcopy(game['entered']), 'turn_start':game['turn_start']}
     game['darts'].append(hit[3]); game['history'].append({'player':p,'dart':hit[3]})
     if game['mode']=='x01':
         entered=game.setdefault('entered',{pid:True for pid in game['players']})
@@ -77,6 +81,33 @@ def next_turn(game):
     if game['winner'] is not None: raise ValueError('Spiel ist beendet')
     if not game['darts']: raise ValueError('Mindestens ein Wurf erforderlich')
     game['turn']=(game['turn']+1)%len(game['players'])
-    game['darts']=[];game['bust']=False
+    game['darts']=[];game['bust']=False;game['visit_snapshot']=None
     game['turn_start']=game['scores'][game['players'][game['turn']]]
+    return game
+
+def correct_dart(game, index, value):
+    """Re-evaluate the current visit from its pre-visit snapshot."""
+    if not isinstance(index, int) or isinstance(index, bool) or not 0 <= index < len(game['darts']):
+        raise ValueError('Ungültige Dart-Position')
+    snapshot = game.get('visit_snapshot')
+    if snapshot is None:
+        raise ValueError('Diese ältere Aufnahme kann nicht korrigiert werden; bitte ein neues Spiel starten')
+    import copy
+    darts = list(game['darts'])
+    darts[index] = parse_dart(value)[3]
+    old_history = game['history'][:-len(game['darts'])]
+    game['scores'] = copy.deepcopy(snapshot['scores'])
+    game['marks'] = copy.deepcopy(snapshot['marks'])
+    game['entered'] = copy.deepcopy(snapshot['entered'])
+    game['winner'] = None
+    game['bust'] = False
+    game['darts'] = []
+    game['history'] = old_history
+    game['turn_start'] = snapshot['turn_start']
+    # A corrected throw can finish the leg or cause a bust. Later darts are
+    # then discarded rather than applying them to a finished visit.
+    for dart in darts:
+        if game['winner'] is not None or game['bust']:
+            break
+        throw(game, dart)
     return game

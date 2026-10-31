@@ -44,3 +44,15 @@ Ein separater Hardwareadapter soll künftig validierte Treffer als `S20`, `D16`,
 ## Version 0.1.1 – Check-In-Regeln
 
 Bei x01 können im Menü **Check-In (Spielbeginn)** die Optionen Straight In (Standard), Double In und Master In gewählt werden. Double In erfordert als ersten zählenden Dart ein Doppel (inklusive Bullseye 50), Master In ein Doppel oder Triple (inklusive Bullseye 50). Nicht qualifizierende Darts zählen als geworfen, ziehen aber keine Punkte ab. Jeder Spieler hat einen separaten Einstiegsstatus. Check-Out bleibt unabhängig einstellbar.
+
+## Version 0.1.2 – Touch und Wurfkorrektur
+
+- `MISS` wird als eigener Treffer mit 0 Punkten erfasst (bereits in 0.1.1 vorhanden).
+- In der **aktuellen Aufnahme** kann jeder bereits erfasste Dart durch Antippen
+  und erneute Auswahl des Feldes korrigiert werden, auch nach Bust oder Checkout.
+- Die aktuelle Aufnahme wird bei Korrekturen von ihrem Startzustand aus neu
+  berechnet (x01 inkl. Double/Master-In, Cricket, Bust, Checkout).
+- Touch-freundlichere Schaltflächen und Fokusdarstellung.
+- Korrektur ist auf die aktuelle Aufnahme begrenzt. Bereits abgeschlossene
+  Aufnahmen und Aufnahmen aus älteren, laufenden Spielständen können noch nicht
+  korrigiert werden. Ein neues Spiel speichert die erforderlichen Snapshots.
