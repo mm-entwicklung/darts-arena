@@ -25,10 +25,19 @@ class Handler(BaseHTTPRequestHandler):
         if path=='/api/state':
             with LOCK:self.send(200,STATE)
             return
-        files={'/':'index.html','/index.html':'index.html','/app.js':'app.js','/style.css':'style.css'}
-        if path not in files:return self.send(404,{'error':'Nicht gefunden'})
-        f=ROOT/'static'/files[path]
-        self.send(200,f.read_bytes(),{'index.html':'text/html','app.js':'application/javascript','style.css':'text/css'}[files[path]])
+        # Serve only known frontend asset directories; prevent path traversal.
+        if path in ('/', '/index.html'):
+            asset = ROOT / 'static' / 'index.html'
+        elif path == '/app.js' or path.startswith('/js/') or path.startswith('/css/'):
+            asset = (ROOT / 'static' / path.lstrip('/')).resolve()
+            if not asset.is_relative_to((ROOT / 'static').resolve()):
+                return self.send(404, {'error': 'Nicht gefunden'})
+        else:
+            return self.send(404, {'error': 'Nicht gefunden'})
+        if not asset.is_file():
+            return self.send(404, {'error': 'Nicht gefunden'})
+        ctype = 'text/html' if asset.suffix == '.html' else 'text/css' if asset.suffix == '.css' else 'application/javascript'
+        self.send(200, asset.read_bytes(), ctype)
     def do_POST(self):
         try:
             length=int(self.headers.get('Content-Length','0'))

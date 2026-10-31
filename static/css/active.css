@@ -1,0 +1,46 @@
+/* v0.1.4: active player visibility, no distracting animation */
+.scorecard.current {
+    background: linear-gradient(145deg, #17352d, #14251f);
+    border: 2px solid #4ae8af;
+    box-shadow:
+        0 0 0 2px #1b6953,
+        0 7px 24px #0005;
+    padding: 17px;
+}
+.scorecard.current .score {
+    color: #60f2b7;
+}
+.active-turn-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 12px;
+    min-height: 32px;
+    border-radius: 8px;
+    background: #245c49;
+    color: #b4ffde;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.7px;
+}
+.scoring-turn-banner {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 12px 14px;
+    margin: -4px 0 16px;
+    border: 1px solid #3da77e;
+    border-radius: 10px;
+    background: #183b30;
+    color: #b4ffde;
+}
+.scoring-turn-banner span {
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.6px;
+}
+.scoring-turn-banner strong {
+    font-size: 18px;
+    color: #fff;
+}

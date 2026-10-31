@@ -56,3 +56,8 @@ Bei x01 können im Menü **Check-In (Spielbeginn)** die Optionen Straight In (St
 - Korrektur ist auf die aktuelle Aufnahme begrenzt. Bereits abgeschlossene
   Aufnahmen und Aufnahmen aus älteren, laufenden Spielständen können noch nicht
   korrigiert werden. Ein neues Spiel speichert die erforderlichen Snapshots.
+
+
+## Frontend-Struktur (v0.1.3)
+
+`static/app.js` ist der ES-Modul-Einstiegspunkt. Die Module in `static/js/` trennen API, Spieler, Setup, Spielanzeige, Tastatur und UI. Styles liegen in `static/css/` (base, game, keyboard). Der Python-Server muss die statischen Unterverzeichnisse bereitstellen.

@@ -1,0 +1,59 @@
+/* v0.1.2: touch-first scoring and per-dart correction */
+button,
+.choice {
+    touch-action: manipulation;
+    min-height: 44px;
+}
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+    outline: 3px solid #68edb7;
+    outline-offset: 2px;
+}
+.dartboard button {
+    min-height: 54px;
+}
+.visit-dart {
+    min-width: 76px;
+    min-height: 72px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    font-size: 19px;
+}
+.visit-dart small {
+    font-size: 11px;
+    color: #9ed8c0;
+}
+.visit-dart.selected {
+    border-color: #56e9ad;
+    background: #1a4035;
+}
+.correction {
+    margin-top: 16px;
+    padding: 15px;
+    border: 1px solid #456c60;
+    border-radius: 12px;
+    background: #10231f;
+}
+.correction .dartboard {
+    margin: 12px 0;
+}
+.correction .flex {
+    margin-top: 10px;
+}
+@media (pointer: coarse) {
+    button,
+    .choice {
+        min-height: 48px;
+    }
+    .dartboard button {
+        min-height: 62px;
+    }
+    .nav {
+        min-height: 50px;
+    }
+}
+
