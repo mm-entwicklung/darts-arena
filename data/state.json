@@ -1,0 +1,68 @@
+{
+    "players": [
+        {
+            "id": "f27a5fd22a1e4818879e232e3563929c",
+            "name": "Marco",
+            "avatar": ""
+        },
+        {
+            "id": "a544fd44f5954537bff7ea16aab905ed",
+            "name": "Peter",
+            "avatar": ""
+        }
+    ],
+    "game": {
+        "mode": "x01",
+        "players": ["f27a5fd22a1e4818879e232e3563929c", "a544fd44f5954537bff7ea16aab905ed"],
+        "turn": 1,
+        "darts": ["T20"],
+        "history": [
+            {
+                "player": "f27a5fd22a1e4818879e232e3563929c",
+                "dart": "S20"
+            },
+            {
+                "player": "f27a5fd22a1e4818879e232e3563929c",
+                "dart": "D19"
+            },
+            {
+                "player": "f27a5fd22a1e4818879e232e3563929c",
+                "dart": "T1"
+            },
+            {
+                "player": "a544fd44f5954537bff7ea16aab905ed",
+                "dart": "T20"
+            }
+        ],
+        "winner": null,
+        "start": 501,
+        "out": "double",
+        "cricket": "standard",
+        "scores": {
+            "f27a5fd22a1e4818879e232e3563929c": 440,
+            "a544fd44f5954537bff7ea16aab905ed": 441
+        },
+        "marks": {
+            "f27a5fd22a1e4818879e232e3563929c": {
+                "20": 0,
+                "19": 0,
+                "18": 0,
+                "17": 0,
+                "16": 0,
+                "15": 0,
+                "25": 0
+            },
+            "a544fd44f5954537bff7ea16aab905ed": {
+                "20": 0,
+                "19": 0,
+                "18": 0,
+                "17": 0,
+                "16": 0,
+                "15": 0,
+                "25": 0
+            }
+        },
+        "turn_start": 501,
+        "bust": false
+    }
+}

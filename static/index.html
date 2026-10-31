@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="de">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>Darts Arena</title>
+        <link rel="stylesheet" href="/style.css" />
+    </head>
+    <body>
+        <div class="shell">
+            <aside>
+                <div class="brand">
+                    ◎ <b>DARTS<span>ARENA</span></b>
+                </div>
+                <div class="sub">LOCAL EDITION · V0.1</div>
+                <nav>
+                    <button data-view="game" class="nav active">◉ Spiel</button
+                    ><button data-view="players" class="nav">♙ Spieler</button
+                    ><button data-view="setup" class="nav">⚙ Neues Spiel</button>
+                </nav>
+                <div class="sidebottom">● Offline · Windows<br /><small>Autodarts-Anbindung vorbereitet</small></div>
+            </aside>
+            <main>
+                <header>
+                    <div>
+                        <div class="eyebrow">DEIN DARTS CONTROL CENTER</div>
+                        <h1 id="heading">Spielübersicht</h1>
+                    </div>
+                    <span class="status">● LOKAL VERBUNDEN</span>
+                </header>
+                <div id="content"></div>
+            </main>
+        </div>
+        <div id="toast"></div>
+        <script src="/app.js"></script>
+    </body>
+</html>

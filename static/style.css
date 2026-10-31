@@ -1,0 +1,363 @@
+:root {
+    font-family: Inter, "Segoe UI", Arial, sans-serif;
+    color: #ecf4f2;
+    background: #0b1014;
+    font-synthesis: none;
+}
+* {
+    box-sizing: border-box;
+}
+body {
+    margin: 0;
+}
+.shell {
+    display: flex;
+    min-height: 100vh;
+}
+aside {
+    width: 245px;
+    flex-shrink: 0;
+    background: #10181c;
+    border-right: 1px solid #243036;
+    padding: 30px 18px;
+    display: flex;
+    flex-direction: column;
+}
+.brand {
+    font-size: 23px;
+    color: #48e1a0;
+    letter-spacing: 1px;
+    padding: 0 10px;
+}
+.brand b {
+    color: #fff;
+}
+.brand span {
+    color: #48e1a0;
+}
+.sub,
+.eyebrow {
+    font-size: 10px;
+    letter-spacing: 2.2px;
+    color: #829c9d;
+    margin: 8px 10px 48px;
+}
+.eyebrow {
+    margin: 0 0 10px;
+    color: #49dba1;
+}
+.nav {
+    width: 100%;
+    text-align: left;
+    margin: 5px 0;
+    padding: 15px 18px;
+    border: 0;
+    border-radius: 12px;
+    color: #a8b9b8;
+    background: transparent;
+    font-size: 15px;
+    cursor: pointer;
+}
+.nav:hover,
+.nav.active {
+    background: #1a302d;
+    color: #61edb3;
+}
+.sidebottom {
+    margin-top: auto;
+    font-size: 12px;
+    line-height: 2;
+    color: #5ae4a8;
+    padding: 14px;
+}
+.sidebottom small {
+    color: #879a9a;
+}
+main {
+    flex: 1;
+    min-width: 0;
+    padding: 38px clamp(20px, 4vw, 64px);
+}
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    gap: 12px;
+}
+h1 {
+    font-size: 31px;
+    margin: 0;
+    font-weight: 750;
+}
+.status {
+    border: 1px solid #285744;
+    background: #10241f;
+    color: #62e8ab;
+    padding: 10px 14px;
+    border-radius: 30px;
+    font-size: 11px;
+    white-space: nowrap;
+}
+.panel {
+    background: #131d22;
+    border: 1px solid #26343b;
+    border-radius: 18px;
+    padding: 24px;
+    margin-bottom: 20px;
+}
+.panel h2 {
+    font-size: 18px;
+    margin: 0 0 18px;
+}
+.muted {
+    color: #91a4a6;
+}
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+}
+.scorecard {
+    border: 1px solid #2a3a40;
+    border-radius: 15px;
+    padding: 18px;
+    background: #172228;
+}
+.scorecard.current {
+    border-color: #45dba0;
+    box-shadow: 0 0 0 1px #237f61;
+}
+.score {
+    font-size: 56px;
+    font-weight: 800;
+    letter-spacing: -3px;
+    margin: 12px 0;
+    color: #fff;
+}
+.scorecard.current .score {
+    color: #56e9ad;
+}
+.name {
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #264b43;
+    color: #68edb7;
+    display: inline-grid;
+    place-items: center;
+    object-fit: cover;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+.avatar.big {
+    width: 54px;
+    height: 54px;
+}
+.pill {
+    background: #20322e;
+    border-radius: 8px;
+    padding: 6px 9px;
+    font-size: 12px;
+    color: #80dfb3;
+}
+.flex {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.between {
+    justify-content: space-between;
+}
+button,
+.btn {
+    cursor: pointer;
+    border-radius: 10px;
+    border: 1px solid #39514d;
+    background: #243b36;
+    color: #e7fff3;
+    padding: 11px 17px;
+    font-weight: 650;
+    font-size: 14px;
+}
+button:hover {
+    filter: brightness(1.2);
+}
+button.primary {
+    background: #47dca1;
+    color: #082019;
+    border-color: #47dca1;
+}
+button.danger {
+    color: #ff9f9f;
+    border-color: #674044;
+    background: #302124;
+}
+button:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+input,
+select {
+    border: 1px solid #35464d;
+    background: #0c1519;
+    color: #eefaf6;
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 15px;
+    min-width: 0;
+}
+label {
+    display: block;
+    font-size: 13px;
+    color: #9db0b0;
+    margin-bottom: 7px;
+}
+.field {
+    margin-bottom: 18px;
+}
+.field input,
+.field select {
+    width: 100%;
+}
+.choice {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 10px;
+    border: 1px solid #33454a;
+    border-radius: 10px;
+    margin: 7px 0;
+    cursor: pointer;
+}
+.choice input {
+    accent-color: #48dda4;
+}
+.dartboard {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(48px, 1fr));
+    gap: 9px;
+    max-width: 570px;
+}
+.dartboard button {
+    font-size: 18px;
+    padding: 13px 0;
+}
+.dartboard button.selected {
+    background: #45dca1;
+    color: #082019;
+}
+.mini {
+    font-size: 12px;
+    color: #9caeaf;
+}
+.sectionline {
+    border-top: 1px solid #2b3c42;
+    margin: 20px 0;
+}
+.marktable {
+    width: 100%;
+    border-collapse: collapse;
+    overflow: auto;
+}
+.marktable th,
+.marktable td {
+    padding: 10px;
+    border-bottom: 1px solid #2b3c42;
+    text-align: center;
+}
+.marktable th:first-child {
+    text-align: left;
+}
+.empty {
+    text-align: center;
+    padding: 65px 20px;
+}
+.empty .symbol {
+    font-size: 55px;
+    color: #4ce0a4;
+}
+.playerrow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 13px 0;
+    border-bottom: 1px solid #2a3a40;
+}
+.playerrow:last-child {
+    border: 0;
+}
+.two {
+    display: grid;
+    grid-template-columns: minmax(260px, 1fr) minmax(280px, 1.3fr);
+    gap: 20px;
+}
+#toast {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    background: #a33737;
+    color: #fff;
+    padding: 14px 18px;
+    border-radius: 12px;
+    display: none;
+    max-width: 340px;
+}
+@media (max-width: 800px) {
+    .shell {
+        display: block;
+    }
+    aside {
+        width: 100%;
+        padding: 14px;
+        display: block;
+    }
+    .brand {
+        display: inline-block;
+    }
+    .sub,
+    .sidebottom {
+        display: none;
+    }
+    nav {
+        display: flex;
+        gap: 5px;
+        margin-top: 12px;
+    }
+    .nav {
+        padding: 10px;
+        font-size: 13px;
+        text-align: center;
+    }
+    main {
+        padding: 24px 15px;
+    }
+    header {
+        align-items: flex-start;
+    }
+    h1 {
+        font-size: 25px;
+    }
+    .status {
+        font-size: 9px;
+    }
+    .two {
+        grid-template-columns: 1fr;
+    }
+    .score {
+        font-size: 45px;
+    }
+}
+@media (max-width: 420px) {
+    .dartboard {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
