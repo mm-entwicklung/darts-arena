@@ -1,21 +1,16 @@
-import base64, binascii, io, json, os, re, threading, uuid, webbrowser
+import base64, binascii, io, json, re, threading, uuid, webbrowser
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
 from urllib.parse import urlparse
 from engine import new_game, throw, next_turn, correct_dart
+import database
 
 ROOT=Path(__file__).resolve().parent
-DATA=ROOT/'data'/'state.json'
 LOCK=threading.RLock()
-def initial():return {'players':[], 'game':None, 'favorites':[]}
-def load():
-    try:return json.loads(DATA.read_text(encoding='utf-8'))
-    except (FileNotFoundError,ValueError):return initial()
-STATE=load()
-STATE.setdefault('favorites', [])
+# v0.1.6 deliberately starts with an empty SQLite database; state.json is untouched.
+STATE=database.load()
 def save():
-    DATA.parent.mkdir(exist_ok=True)
-    temp=DATA.with_suffix('.tmp');temp.write_text(json.dumps(STATE,ensure_ascii=False,indent=2),encoding='utf-8');os.replace(temp,DATA)
+    database.save(STATE)
 
 
 MAX_UPLOAD_BYTES = 25 * 1024 * 1024

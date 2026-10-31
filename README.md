@@ -75,3 +75,15 @@ python -m pip install -r requirements.txt
 ```
 
 Die Anwendung selbst bleibt vollständig lokal/offline. Falls HEIC-Dateien nicht verarbeitet werden, die Installation von `pillow-heif` überprüfen. Die Speicherung bleibt in v0.1.5 JSON; SQLite ist für v0.1.6 vorgesehen.
+
+## Version 0.1.6 – SQLite
+
+Darts Arena speichert Spieler, optimierte WebP-Avatare (als BLOB), Favoritenlisten,
+Listenmitgliedschaften und den aktuellen Spielstand in `data/darts_arena.db`.
+Die Datenbank wird beim ersten Start automatisch erstellt. `sqlite3` gehört zur
+Python-Standardbibliothek; die Bildbibliotheken aus `requirements.txt` bleiben erforderlich.
+
+**Wichtig:** Es findet bewusst **keine Migration** von `data/state.json` statt.
+Die alte Datei wird weder gelesen noch gelöscht. v0.1.6 beginnt deshalb mit
+leeren Spielern und Favoritenlisten. Bitte alte Testdaten bei Bedarf separat sichern.
+Die Bedienoberfläche und API bleiben unverändert.

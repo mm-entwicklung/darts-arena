@@ -27,3 +27,9 @@
 ## v0.1.2
 
 - Touch-Steuerung, Wurfkorrektur, Bildschirmtastatur, aktiver Spieler und Single-Reset.
+
+## v0.1.6 – SQLite-Datenbank
+- Lokale SQLite-Datenbank (`data/darts_arena.db`) mit automatischer Initialisierung.
+- Spieler und WebP-Avatare als BLOB, Favoritenlisten mit Mehrfachzuordnung sowie aktives Spiel dauerhaft gespeichert.
+- Datenbankzugriffe in `database.py` ausgelagert; atomare Transaktionen und Fremdschlüssel.
+- Keine Migration von JSON-Testdaten; bestehende `data/state.json` bleibt unangetastet.
