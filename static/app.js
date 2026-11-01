@@ -5,7 +5,7 @@ import { toast, changeView, render } from "./js/ui.js";
 import { renderPlayers, savePlayer, removePlayer, toggleAvatarRemoval, onAvatarFileChange, fillTestPlayers } from "./js/players.js";
 import { renderSetup, updateMode, togglePlayer, toggleAllPlayers, selectFavorite, startGame } from "./js/setup.js";
 import { editFavorite, clearFavoriteEditor, saveFavorite, deleteFavorite } from "./js/favorites.js";
-import { renderGame, dart, fixDart } from "./js/game.js";
+import { renderGame, dart, enterDart, cancelDartCorrection, fixDart, setInputMode, boardTap } from "./js/game.js";
 import { openKeyboard, closeKeyboard } from "./js/keyboard.js";
 
 // Inline event handlers in the existing HTML templates use these global names.
@@ -13,7 +13,7 @@ import { openKeyboard, closeKeyboard } from "./js/keyboard.js";
 Object.assign(window, {
     model,
     api, toast, changeView, render, renderPlayers, savePlayer, removePlayer, toggleAvatarRemoval, onAvatarFileChange, fillTestPlayers,
-    renderSetup, updateMode, togglePlayer, toggleAllPlayers, selectFavorite, startGame, renderGame, dart, fixDart,
+    renderSetup, updateMode, togglePlayer, toggleAllPlayers, selectFavorite, startGame, renderGame, dart, enterDart, cancelDartCorrection, fixDart, setInputMode, boardTap,
     editFavorite, clearFavoriteEditor, saveFavorite, deleteFavorite,
     openKeyboard, closeKeyboard, $, esc, player, avatar,
 });

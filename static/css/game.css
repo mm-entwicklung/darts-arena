@@ -57,3 +57,44 @@ select:focus-visible {
     }
 }
 
+
+/* v0.1.8: gleiche Kopfzeile und Abstände in beiden Eingabemodi. */
+body.game-in-progress .scoring-panel .scoring-heading {
+    display: flex;
+    align-items: center;
+    min-height: 32px;
+    margin: 0 0 12px;
+    flex: 0 0 auto;
+}
+body.game-in-progress .scoring-panel .scoring-heading h2 { margin: 0; }
+body.game-in-progress .scoring-panel .scoring-heading + .scoring-turn-banner { margin-top: 0; }
+/* Korrektursteuerung statt zweiter Tastatur oder zusätzlicher Kopfzeile. */
+body.game-in-progress .visit-correction {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    min-height: 75px;
+}
+body.game-in-progress .visit-correction-text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+body.game-in-progress .visit-correction-text span { font-size: 12px; color: #a8c8bf; }
+body.game-in-progress .visit-correction .cancel-correction {
+    flex: 0 0 auto;
+    min-height: 44px;
+    padding: 8px 12px;
+    font-size: 12px;
+}
+
+/* v0.1.8: Die normalen Aktionen bestimmen die Höhe in beiden Zuständen.
+   Die Korrektur liegt darüber, ohne die Karte oder Dartscheibe umzubauen. */
+body.game-in-progress .visit-action-slot { position: relative; }
+body.game-in-progress .visit-action-slot.is-correcting .visit-action-default { visibility: hidden; pointer-events: none; }
+body.game-in-progress .visit-action-slot .visit-correction {
+    position: absolute; inset: 0; min-height: 0;
+    box-sizing: border-box;
+}

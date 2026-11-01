@@ -2,7 +2,7 @@ import base64, binascii, io, json, random, re, threading, uuid, webbrowser
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
 from urllib.parse import urlparse
-from engine import new_game, throw, next_turn, correct_dart
+from engine import new_game, throw, next_turn, correct_dart, advance_leg, rematch
 import database
 
 ROOT=Path(__file__).resolve().parent
@@ -132,7 +132,7 @@ class Handler(BaseHTTPRequestHandler):
                 elif path=='/api/start':
                     ids=body.get('players',[])
                     if any(i not in [p['id'] for p in STATE['players']] for i in ids):raise ValueError('Unbekannter Spieler')
-                    STATE['game']=new_game(ids,body.get('mode','x01'),int(body.get('start',501)),body.get('out','double'),body.get('cricket','standard'),body.get('checkin','straight'))
+                    STATE['game']=new_game(ids,body.get('mode','x01'),int(body.get('start',501)),body.get('out','double'),body.get('cricket','standard'),body.get('checkin','straight'),body.get('legs',1),body.get('sets',1))
                 elif path=='/api/throw':
                     if not STATE['game']:raise ValueError('Kein aktives Spiel')
                     throw(STATE['game'],body.get('dart',''))
@@ -142,6 +142,12 @@ class Handler(BaseHTTPRequestHandler):
                 elif path=='/api/next':
                     if not STATE['game']:raise ValueError('Kein aktives Spiel')
                     next_turn(STATE['game'])
+                elif path=='/api/advance_leg':
+                    if not STATE['game']:raise ValueError('Kein aktives Spiel')
+                    advance_leg(STATE['game'])
+                elif path=='/api/rematch':
+                    if not STATE['game'] or not STATE['game'].get('match_winner'):raise ValueError('Match noch nicht beendet')
+                    STATE['game']=rematch(STATE['game'])
                 elif path=='/api/reset':STATE['game']=None
                 else:return self.send(404,{'error':'Unbekannte Aktion'})
                 save();self.send(200,STATE)

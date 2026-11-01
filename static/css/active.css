@@ -29,7 +29,7 @@
     flex-wrap: wrap;
     gap: 10px;
     padding: 12px 14px;
-    margin: -4px 0 16px;
+    margin: 0 0 16px;
     border: 1px solid #3da77e;
     border-radius: 10px;
     background: #183b30;
@@ -44,3 +44,18 @@
     font-size: 18px;
     color: #fff;
 }
+
+/* v0.1.8: align turn label and name without changing banner height. */
+.scoring-turn-banner {
+    flex-wrap: nowrap;
+    align-items: center;
+    column-gap: 14px;
+}
+.scoring-turn-banner span,
+.scoring-turn-banner strong {
+    display: inline-flex;
+    align-items: center;
+    line-height: 1.15;
+    margin: 0;
+}
+.scoring-turn-banner strong { min-width: 0; overflow-wrap: anywhere; }

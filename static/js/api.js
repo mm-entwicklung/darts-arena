@@ -17,7 +17,7 @@ export async function api(path, data = {}) {
             nextGame &&
             (previousGame.turn !== nextGame.turn ||
                 previousGame.players[previousGame.turn] !== nextGame.players[nextGame.turn]);
-        if (path === "next" || path === "start" || path === "reset" || turnChanged) {
+        if (path === "next" || path === "start" || path === "reset" || path === "advance_leg" || path === "rematch" || turnChanged) {
             model.mult = "S";
             model.correcting = null;
         }

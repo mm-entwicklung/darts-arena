@@ -13,14 +13,16 @@ def parse_dart(value):
     if not 1<=n<=20: raise ValueError('Feld außerhalb 1–20')
     return (n,mult,n*mult,s)
 
-def new_game(player_ids, mode='x01', start=501, out='double', cricket='standard', checkin='straight'):
+def new_game(player_ids, mode='x01', start=501, out='double', cricket='standard', checkin='straight', legs=1, sets=1):
     if not 2<=len(player_ids)<=32 or len(set(player_ids))!=len(player_ids): raise ValueError('2–32 unterschiedliche Spieler erforderlich')
     if mode not in VALID_MODES: raise ValueError('Unbekannter Modus')
     if mode=='x01' and (not isinstance(start,int) or start<2 or start>10001): raise ValueError('Ungültiger Startwert')
     if out not in ('single','double','master'): raise ValueError('Ungültige Checkout-Regel')
     if checkin not in ('straight','double','master'): raise ValueError('Ungültige Check-In-Regel')
     if cricket not in ('standard','cutthroat','noscore'): raise ValueError('Ungültige Cricket-Variante')
-    return {'mode':mode,'players':list(player_ids),'turn':0,'darts':[], 'history':[], 'winner':None,
+    if type(legs) is not int or not 1 <= legs <= 21: raise ValueError('Legs pro Set: 1–21 erforderlich')
+    if type(sets) is not int or not 1 <= sets <= 15: raise ValueError('Sets zum Matchgewinn: 1–15 erforderlich')
+    return {'legs_target':legs,'sets_target':sets,'leg_wins':{p:0 for p in player_ids},'set_wins':{p:0 for p in player_ids},'leg_number':1,'set_number':1,'match_winner':None,'last_leg_winner':None,'last_set_winner':None,'first_player':0,'mode':mode,'players':list(player_ids),'turn':0,'darts':[], 'history':[], 'winner':None,
             'start':start,'out':out,'checkin':checkin,'cricket':cricket,
             'entered':{p:checkin=='straight' for p in player_ids},
             'scores':{p:start if mode=='x01' else 0 for p in player_ids},
@@ -75,6 +77,7 @@ def throw(game, value):
     else:
         _cricket_hit(game,p,hit)
         if _cricket_winner(game,p):game['winner']=p
+    if game['winner'] is not None: _record_leg_win(game)
     return game
 
 def next_turn(game):
@@ -99,7 +102,14 @@ def correct_dart(game, index, value):
     game['scores'] = copy.deepcopy(snapshot['scores'])
     game['marks'] = copy.deepcopy(snapshot['marks'])
     game['entered'] = copy.deepcopy(snapshot['entered'])
+    if game.get('recorded_leg') == game.get('leg_number'):
+        previous_winner = game['winner']
+        game['leg_wins'][previous_winner] -= 1
+        if game['last_set_winner'] == previous_winner and game['leg_wins'][previous_winner] == game['legs_target'] - 1:
+            game['set_wins'][previous_winner] -= 1
+        game['match_winner'] = None
     game['winner'] = None
+    game['recorded_leg'] = None
     game['bust'] = False
     game['darts'] = []
     game['history'] = old_history
@@ -111,3 +121,43 @@ def correct_dart(game, index, value):
             break
         throw(game, dart)
     return game
+
+
+def _record_leg_win(game):
+    winner = game['winner']
+    if game.get('recorded_leg') == game.get('leg_number'): return
+    game['recorded_leg'] = game['leg_number']
+    game['last_leg_winner'] = winner
+    game['leg_wins'][winner] += 1
+    if game['leg_wins'][winner] >= game['legs_target']:
+        game['last_set_winner'] = winner
+        game['set_wins'][winner] += 1
+        if game['set_wins'][winner] >= game['sets_target']:
+            game['match_winner'] = winner
+
+
+def advance_leg(game):
+    """Confirm a finished leg, advance the set or end the match."""
+    winner = game.get('winner')
+    if winner is None: raise ValueError('Das Leg ist noch nicht beendet')
+    if game.get('match_winner'): raise ValueError('Das Match ist bereits beendet')
+    if game['leg_wins'][winner] >= game['legs_target']:
+        game['leg_wins'] = {p:0 for p in game['players']}
+        game['set_number'] += 1
+    game['leg_number'] += 1
+    game['first_player'] = (game['first_player'] + 1) % len(game['players'])
+    game['turn'] = game['first_player']
+    game['darts'] = []
+    game['history'] = []
+    game['winner'] = None
+    game['recorded_leg'] = None
+    game['bust'] = False
+    game['visit_snapshot'] = None
+    game['scores'] = {p:game['start'] if game['mode']=='x01' else 0 for p in game['players']}
+    game['marks'] = {p:{str(n):0 for n in CRICKET_NUMBERS} for p in game['players']}
+    game['entered'] = {p:game['checkin']=='straight' for p in game['players']}
+    game['turn_start'] = game['scores'][game['players'][game['turn']]]
+    return game
+
+def rematch(game):
+    return new_game(game['players'], game['mode'], game['start'], game['out'], game['cricket'], game['checkin'], game.get('legs_target',1), game.get('sets_target',1))
