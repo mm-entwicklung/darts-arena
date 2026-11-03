@@ -4,6 +4,7 @@ import { renderGame } from "./game.js";
 import { renderPlayers } from "./players.js";
 import { renderSetup } from "./setup.js";
 import { $ } from "./helpers.js";
+import {renderHelp} from "./help.js";
 
 export function toast(s) {
     $("toast").textContent = s;
@@ -20,11 +21,11 @@ export function render() {
     closeKeyboard();
     document.querySelectorAll(".nav").forEach((b) => b.classList.toggle("active", b.dataset.view === model.view));
     document.body.classList.toggle("game-in-progress", model.view === "game" && Boolean(model.state.game));
-    $("heading").textContent = { game: "Spielübersicht", players: "Spielerverwaltung", setup: "Neues Spiel" }[model.view];
+    $("heading").textContent = { game: "Spielübersicht", players: "Spielerverwaltung", setup: "Neues Spiel", help: "Spielhilfe" }[model.view];
     const roster = document.getElementById("roster-list");
     const oldScroll = roster ? roster.scrollTop : 0;
     const oldActive = roster?.querySelector("[aria-current=true]")?.dataset.playerIndex;
-    $("content").innerHTML = { game: renderGame, players: renderPlayers, setup: renderSetup }[model.view]();
+    $("content").innerHTML = { game: renderGame, players: renderPlayers, setup: renderSetup, help: renderHelp }[model.view]();
     if (model.view === "game") {
         const nextRoster = document.getElementById("roster-list");
         if (nextRoster) {

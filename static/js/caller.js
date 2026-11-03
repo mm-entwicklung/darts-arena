@@ -41,15 +41,35 @@ export function stopCaller() {
     }
 }
 
+// A target announcement is composed of the short "you require" prefix and
+// the existing numeric recording. No other caller announcements are changed.
+function playSpeechParts(names, token = sequence) {
+    if (token !== sequence || !names?.length) return;
+    if (speech) { speech.pause(); speech.currentTime = 0; speech = null; }
+    let index = 0;
+    const next = () => {
+        if (token !== sequence || index >= names.length) return;
+        const audio = new Audio(sound(names[index++]));
+        speech = audio;
+        audio.addEventListener('ended', () => {
+            if (speech === audio) speech = null;
+            if (token === sequence) next();
+        }, { once: true });
+        audio.addEventListener('error', () => {
+            console.warn('Caller Sprachdatei nicht gefunden:', audio.src);
+            if (speech === audio) speech = null;
+            if (token === sequence) next();
+        }, { once: true });
+        audio.play().catch(error => {
+            console.warn('Caller Sprachwiedergabe:', error);
+            if (speech === audio) speech = null;
+        });
+    };
+    next();
+}
+
 function playSpeech(name, token = sequence) {
-    if (token !== sequence) return;
-    if (speech) { speech.pause(); speech.currentTime = 0; }
-    const audio = new Audio(sound(name));
-    speech = audio;
-    const clear = () => { if (speech === audio) speech = null; };
-    audio.addEventListener('ended', clear, { once: true });
-    audio.addEventListener('error', clear, { once: true });
-    audio.play().catch(clear);
+    if (name) playSpeechParts(Array.isArray(name) ? name : [name], token);
 }
 
 async function playHitThen(speechName = null) {
@@ -102,14 +122,99 @@ function winName(g) {
     return 'gl_1';
 }
 
+// The training caller only uses existing numeric WAV files. Double/Triple
+// announcements remain a separate future feature.
+const TRAINING = new Set(['clock', 'random_clock', 'bobs27', 'shanghai', 'bull', 'scoring']);
+const numericSpeech = value => Number.isInteger(value) && value >= 0 && value <= 180
+    ? (value === 180 ? 'an_180v2' : `an_${value}`) : null;
+
+function activeTraining(g) {
+    if (!g || !TRAINING.has(g.mode)) return null;
+    const id = g.players?.[g.turn];
+    return id === undefined ? null : g.training?.[id] || null;
+}
+
+function trainingTarget(g) {
+    const t = activeTraining(g);
+    if (!t || t.done) return null;
+    const progress = t.progress;
+    if (g.mode === 'clock' || g.mode === 'random_clock')
+        return g.target_order?.[Math.min(progress, 20)] ?? null;
+    if (g.mode === 'bobs27') return progress < 20 ? progress + 1 : 25;
+    if (g.mode === 'shanghai') return progress < 7 ? progress + 1 : null;
+    return null;
+}
+
+function dartPoints(dart) {
+    if (dart === 'MISS') return 0;
+    const match = /^([SDT])(\d{1,2})$/.exec(dart || '');
+    if (!match) return 0;
+    return ({S: 1, D: 2, T: 3}[match[1]] || 0) * Number(match[2]);
+}
+
+function trainingVisitSpeech(g) {
+    if (!g?.darts?.length) return null;
+    const score = g.darts.reduce((total, dart) => total + dartPoints(dart), 0);
+    return numericSpeech(score);
+}
+
+function targetSpeech(value) {
+    const number = numericSpeech(value);
+    return number ? ['you_require', number] : null;
+}
+
+function isTargetTraining(g) {
+    return !!g && ['clock', 'random_clock', 'bobs27', 'shanghai'].includes(g.mode);
+}
+
+function trainingThrowSpeech(before, after) {
+    if (after.mode === 'clock' || after.mode === 'random_clock') {
+        const oldTarget = trainingTarget(before);
+        const newTarget = trainingTarget(after);
+        // At the third dart the next turn is pending: announce its target
+        // only when the player actually starts that turn.
+        if (after.darts?.length === 3 && !after.training_finished) return null;
+        return oldTarget !== newTarget ? targetSpeech(newTarget) : null;
+    }
+    // Announce the completed visit immediately after dart three, as in x01.
+    // Also announce a shorter final visit when the training ends.
+    if (after.mode === 'bull' || after.mode === 'scoring') {
+        if (after.darts?.length === 3 || (after.training_finished && after.darts?.length))
+            return trainingVisitSpeech(after);
+    }
+    return null;
+}
+
+function trainingNextSpeech(before, after) {
+    if (before.mode === 'bull' || before.mode === 'scoring')
+        return before.darts?.length > 0 && before.darts.length < 3
+            ? trainingVisitSpeech(before) : null;
+    if (before.mode === 'bobs27' || before.mode === 'shanghai') {
+        const oldTarget = trainingTarget(before);
+        const newTarget = trainingTarget(after);
+        return oldTarget !== newTarget ? targetSpeech(newTarget) : null;
+    }
+    return null;
+}
+
 export function handleCallerAction(path, before, after, data = {}) {
-    if (['start', 'reset', 'rematch', 'advance_leg'].includes(path)) { stopCaller(); return; }
+    if (['start', 'reset', 'rematch', 'advance_leg'].includes(path)) {
+        stopCaller();
+        if (['start', 'rematch'].includes(path) && isTargetTraining(after)) {
+            playSpeech(targetSpeech(trainingTarget(after)));
+        }
+        return;
+    }
     if (!after || !before) return;
     if (path === 'correct') {
         stopCaller();
         if (after.winner) playSpeech(winName(after));
         else if (after.mode === 'x01' && (after.bust || after.darts?.length === 3)) {
             const name = visitName(after);
+            if (name) playSpeech(name);
+        }
+        else if (TRAINING.has(after.mode)) {
+            const name = trainingThrowSpeech(before, after);
             if (name) playSpeech(name);
         }
         // Corrections intentionally do not replay hit effects.
@@ -124,12 +229,25 @@ export function handleCallerAction(path, before, after, data = {}) {
             const hit = after.darts?.at(-1) !== 'MISS';
             if (hit) playHitThen(after.winner ? winName(after) : null);
             else if (after.winner) { stopCaller(); playSpeech(winName(after)); }
+        } else if (TRAINING.has(after.mode)) {
+            const hit = after.darts?.at(-1) !== 'MISS';
+            const name = trainingThrowSpeech(before, after);
+            if (hit) playHitThen(name);
+            else if (name) { stopCaller(); playSpeech(name); }
         }
         return;
     }
-    if (path === 'next' && before.mode === 'x01' && !before.bust && before.darts?.length && before.darts.length < 3) {
-        stopCaller();
-        const name = visitName(before);
-        if (name) playSpeech(name);
+    if (path === 'next') {
+        if (before.mode === 'x01' && !before.bust && before.darts?.length && before.darts.length < 3) {
+            stopCaller();
+            const name = visitName(before);
+            if (name) playSpeech(name);
+        } else if (TRAINING.has(before.mode)) {
+            // Read the active player's target from the *new* game state.
+            // This works for both player changes and solo next visits.
+            const name = isTargetTraining(after)
+                ? targetSpeech(trainingTarget(after)) : trainingNextSpeech(before, after);
+            if (name) { stopCaller(); playSpeech(name); }
+        }
     }
 }

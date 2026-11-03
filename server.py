@@ -136,7 +136,7 @@ class Handler(BaseHTTPRequestHandler):
                 elif path=='/api/start':
                     ids=body.get('players',[])
                     if any(i not in [p['id'] for p in STATE['players']] for i in ids):raise ValueError('Unbekannter Spieler')
-                    STATE['game']=new_game(ids,body.get('mode','x01'),int(body.get('start',501)),body.get('out','double'),body.get('cricket','standard'),body.get('checkin','straight'),body.get('legs',1),body.get('sets',1))
+                    STATE['game']=new_game(ids,body.get('mode','x01'),int(body.get('start',501)),body.get('out','double'),body.get('cricket','standard'),body.get('checkin','straight'),body.get('legs',1),body.get('sets',1),body.get('difficulty','standard'),body.get('rounds',10))
                 elif path=='/api/throw':
                     if not STATE['game']:raise ValueError('Kein aktives Spiel')
                     throw(STATE['game'],body.get('dart',''))
@@ -150,7 +150,7 @@ class Handler(BaseHTTPRequestHandler):
                     if not STATE['game']:raise ValueError('Kein aktives Spiel')
                     advance_leg(STATE['game'])
                 elif path=='/api/rematch':
-                    if not STATE['game'] or not STATE['game'].get('match_winner'):raise ValueError('Match noch nicht beendet')
+                    if not STATE['game'] or not (STATE['game'].get('match_winner') or STATE['game'].get('training_finished')):raise ValueError('Match noch nicht beendet')
                     STATE['game']=rematch(STATE['game'])
                 elif path=='/api/reset':STATE['game']=None
                 else:return self.send(404,{'error':'Unbekannte Aktion'})

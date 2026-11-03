@@ -1,4 +1,5 @@
 import { model } from "./model.js";
+import {renderTraining} from "./training.js";
 import { esc, avatar, player } from "./helpers.js";
 import { api } from "./api.js";
 import { changeView, render } from "./ui.js";
@@ -7,6 +8,7 @@ export function renderGame() {
     let g = model.state.game;
     if (!g)
         return `<section class="panel empty"><div class="symbol">◎</div><h2>Bereit für die nächste Runde?</h2><p class="muted">Lege Spieler an und starte dein erstes x01- oder Cricket-Spiel.</p><button class="primary" onclick="changeView('setup')">Neues Spiel starten →</button></section>`;
+    if (!(["x01","cricket"].includes(g.mode))) return renderTraining(g);
     let current = g.players[g.turn];
     let finished = !!g.winner;
     const matchFinished = !!g.match_winner;
@@ -26,7 +28,7 @@ export function renderGame() {
         ? `<div class="cricket-roster-head" aria-hidden="true"><span></span>${fields.map(n => `<span>${n === 25 ? "Bull" : n}</span>`).join("")}<span>Pkt.</span></div>`
         : "";
     let scorecards = `<section class="panel roster-panel ${cricket ? "cricket-roster" : ""}" aria-label="Spielstände">
-        <div class="roster-heading"><h2>Spielstände</h2><span class="mini">${g.players.length} Spieler · Set ${g.set_number || 1}, Leg ${g.leg_number || 1}</span></div>
+        <div class="roster-heading"><h2>Spielstände</h2><button class="help-icon" onclick="openHelp('${g.mode}','game')">? Hilfe</button><span class="mini">${g.players.length} Spieler · Set ${g.set_number || 1}, Leg ${g.leg_number || 1}</span></div>
         ${cricketHeading}
         <div class="roster-list" id="roster-list">${g.players.map((id, i) => `
             <div class="roster-player ${cricket ? "cricket-player" : ""} ${!finished && i === g.turn ? "current" : ""}" data-player-index="${i}" ${!finished && i === g.turn ? 'aria-current="true"' : ""}>
@@ -59,7 +61,7 @@ export function renderGame() {
             <section class="panel board-panel"><div class="board-heading"><h2>Dartscheibe</h2><span class="board-mode">${g.mode === "x01" ? `${g.start} · ${esc(g.checkin || "straight")} in / ${esc(g.out)} out` : `Cricket · ${esc(g.cricket || "")}`}</span></div><div class="board-stage">${renderTargetBoard(g, boardInput && !finished)}</div></section>
             <div class="game-controls ${boardInput ? "board-input-controls" : ""}">
                 <section class="panel scoring-panel input-mode-panel"><div class="input-mode-switch" role="group" aria-label="Eingabeart"><button class="${!boardInput ? "primary" : ""}" onclick="setInputMode('keys')">Tasten</button><button class="${boardInput ? "primary" : ""}" onclick="setInputMode('board')">Dartscheibe</button></div>${!boardInput ? `<div class="scoring-heading"><h2>Treffer erfassen</h2></div>${!finished ? `<div class="scoring-turn-banner" aria-live="polite"><span>◎ JETZT AM ZUG</span><strong>${esc(player(current).name)}</strong></div>` : ""}<div class="flex multiplier-buttons">${["S", "D", "T"].map((m) => `<button class="${model.mult === m ? "primary" : ""}" onclick="model.mult='${m}';render()">${{S:"Single",D:"Double",T:"Triple"}[m]}</button>`).join("")}</div><div class="dartboard">${buttons}</div><div class="flex bull-buttons"><button onclick="enterDart('S25')">Bull 25</button><button onclick="enterDart('D25')">Bull 50</button><button onclick="enterDart('MISS')">Miss</button></div>` : `<div class="scoring-heading"><h2>Treffer direkt auf der Dartscheibe wählen</h2></div>${!finished ? `<div class="scoring-turn-banner" aria-live="polite"><span>◎ JETZT AM ZUG</span><strong>${esc(player(current).name)}</strong></div>` : ""}<p class="board-input-help">Freie Fläche außerhalb des Rings = Miss.</p>`}</section>
-                <section class="panel visit-panel"><h2>Aktuelle Aufnahme</h2><div class="flex visit-buttons">${[0,1,2].map((i) => `<button class="visit-dart ${model.correcting === i ? "selected" : ""}" ${!g.darts[i] ? "disabled" : ""} onclick="model.correcting=${i};render()" title="Dart ${i+1} korrigieren">${g.darts[i] || "–"}${g.darts[i] ? "<small>✎ Ändern</small>" : '<small class="visit-dart-placeholder" aria-hidden="true">✎ Ändern</small>'}</button>`).join("")}</div>${g.bust ? '<p class="bust-note">BUST – Punktestand zurückgesetzt</p>' : ""}<div class="sectionline"></div><div class="visit-action-slot ${correcting ? "is-correcting" : ""}"><div class="visit-action-default" ${correcting ? "aria-hidden='true' inert" : ""}><div class="flex visit-actions"><button class="primary" onclick="api('next')" ${finished || !g.darts.length || correcting ? "disabled" : ""}>Nächster Spieler →</button><button class="danger" onclick="if(confirm('Spiel beenden?'))api('reset')" ${correcting ? "disabled" : ""}>Spiel beenden</button></div><p class="mini">Nach maximal drei Darts wechseln; auch früher möglich.</p></div>${correctionControls}</div></section>
+                <section class="panel visit-panel"><h2>Aktuelle Aufnahme</h2><div class="flex visit-buttons">${[0,1,2].map((i) => `<button class="visit-dart ${model.correcting === i ? "selected" : ""}" ${!g.darts[i] ? "disabled" : ""} onclick="model.correcting=${i};render()" title="Dart ${i+1} korrigieren">${g.darts[i] || "–"}${g.darts[i] ? "<small>✎ Ändern</small>" : '<small class="visit-dart-placeholder" aria-hidden="true">✎ Ändern</small>'}</button>`).join("")}</div>${g.bust ? '<p class="bust-note">BUST – Punktestand zurückgesetzt</p>' : ""}<div class="sectionline"></div><div class="visit-action-slot ${correcting ? "is-correcting" : ""}"><div class="visit-action-default" ${correcting ? "aria-hidden='true' inert" : ""}><div class="flex visit-actions"><button class="primary" onclick="api('next')" ${finished || !g.darts.length || correcting ? "disabled" : ""}>${g.players.length===1?"Nächste Aufnahme":"Nächster Spieler"} →</button><button class="danger" onclick="if(confirm('Spiel beenden?'))api('reset')" ${correcting ? "disabled" : ""}>Spiel beenden</button></div><p class="mini">Nach maximal drei Darts wechseln; auch früher möglich.</p></div>${correctionControls}</div></section>
                 <section class="panel board-info-panel"><h2>Aufnahme-Info</h2>${finished ? `<div class="match-result"><strong class="result-title">🏆 ${matchFinished ? "MATCH GEWONNEN" : "LEG GEWONNEN"}</strong><strong class="result-name">${esc(player(g.winner).name)}</strong><p>Set ${g.set_number || 1} · Leg ${g.leg_number || 1}</p>${matchActive ? `<p>${g.players.map(id => `${esc(player(id).name)}: ${g.set_wins?.[id] || 0} Sets / ${g.leg_wins?.[id] || 0} Legs`).join(" · ")}</p>` : ""}<div class="flex result-actions">${matchFinished ? `<button class="primary" onclick="api('rematch')">Revanche</button><button onclick="changeView('setup')">Neues Spiel</button>` : `<button class="primary" onclick="api('advance_leg')">${(g.leg_wins?.[g.winner] || 0) >= (g.legs_target || 1) ? "Nächstes Set starten" : "Nächstes Leg starten"}</button>`}</div></div>` : `<p>Darts: <strong>${g.darts.length} / 3</strong></p><p>${cricket ? "Trefferwert" : "Aufnahmesumme"}: <strong>${visitPoints}</strong>${cricket ? ' <span class="mini">(ohne Cricket-Wertung)</span>' : ""}</p>`}</section>
             </div>
         </div>`;
@@ -74,7 +76,7 @@ function ringPath(inner, outer, start, end) {
     return `M${boardPoint(inner,start)} L${boardPoint(outer,start)} A${outer},${outer} 0 0 1 ${boardPoint(outer,end)} L${boardPoint(inner,end)} A${inner},${inner} 0 0 0 ${boardPoint(inner,start)} Z`;
 }
 
-function renderTargetBoard(game, interactive = false) {
+export function renderTargetBoard(game, interactive = false) {
     const darts = game.darts || [];
     const flashIndex = model.flashHit;
     model.flashHit = null; // Einmaliges Ereignis, nicht aus dem aktuellen Spielstand ableiten.
@@ -150,7 +152,7 @@ export function setInputMode(mode) {
 }
 
 export function boardTap(event) {
-    if (model.inputMode !== "board" || !model.state.game || model.state.game.winner) return;
+    if (model.inputMode !== "board" || !model.state.game || model.state.game.winner || model.state.game.training_finished) return;
     const svg = event.currentTarget;
     const target = event.target.closest("[data-dart]");
     let value = target?.getAttribute("data-dart");
