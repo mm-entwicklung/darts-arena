@@ -58,6 +58,10 @@ class Handler(BaseHTTPRequestHandler):
         # Serve only known frontend asset directories; prevent path traversal.
         if path in ('/', '/index.html'):
             asset = ROOT / 'static' / 'index.html'
+        elif path.startswith('/sounds/'):
+            asset = (ROOT / path.lstrip('/')).resolve()
+            if not asset.is_relative_to((ROOT / 'sounds').resolve()) or asset.suffix.lower() != '.wav':
+                return self.send(404, {'error': 'Nicht gefunden'})
         elif path == '/app.js' or path.startswith('/js/') or path.startswith('/css/'):
             asset = (ROOT / 'static' / path.lstrip('/')).resolve()
             if not asset.is_relative_to((ROOT / 'static').resolve()):
@@ -66,7 +70,7 @@ class Handler(BaseHTTPRequestHandler):
             return self.send(404, {'error': 'Nicht gefunden'})
         if not asset.is_file():
             return self.send(404, {'error': 'Nicht gefunden'})
-        ctype = 'text/html' if asset.suffix == '.html' else 'text/css' if asset.suffix == '.css' else 'application/javascript'
+        ctype = 'text/html' if asset.suffix == '.html' else 'text/css' if asset.suffix == '.css' else 'audio/wav' if asset.suffix.lower() == '.wav' else 'application/javascript'
         self.send(200, asset.read_bytes(), ctype)
     def do_POST(self):
         try:

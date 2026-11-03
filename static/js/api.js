@@ -1,5 +1,6 @@
 import { model } from "./model.js";
 import { render, toast } from "./ui.js";
+import { handleCallerAction } from "./caller.js";
 
 export async function api(path, data = {}) {
     try {
@@ -30,6 +31,7 @@ export async function api(path, data = {}) {
         }
         model.state = v;
         render();
+        handleCallerAction(path, previousGame, nextGame, data);
     } catch (e) {
         toast(e.message);
     }
